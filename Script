@@ -1,0 +1,7 @@
+local placeId = game.PlaceId
+
+if placeId == 86436517810018 then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/RentalWoof/Scripts/refs/heads/main/Sbs/Patch1"))()
+elseif placeId == 91859277075532 then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/RentalWoof/Scripts/refs/heads/main/Sbs/Patch2"))()
+end
