@@ -1,35 +1,68 @@
+local MercuryLib = {}
 
-
-local UILib = {}
-
-function UILib:CreateWindow(title)
+function MercuryLib:CreateWindow(title)
     local ScreenGui = Instance.new("ScreenGui")
     local Frame = Instance.new("Frame")
     local Title = Instance.new("TextLabel")
-
-    ScreenGui.Parent = game:GetService("CoreGui")
+    local DraggableArea = Instance.new("Frame")
+    
+    -- Mobil uyumluluk için
+    if syn then
+        ScreenGui.Parent = game:GetService("CoreGui")
+    else
+        ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    end
 
     Frame.Parent = ScreenGui
-    Frame.Size = UDim2.new(0, 400, 0, 300)
-    Frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+    Frame.Size = UDim2.new(0, 400, 0, 500)
+    Frame.Position = UDim2.new(0.5, -200, 0.5, -250)
     Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Frame.BorderSizePixel = 0
 
     Title.Parent = Frame
     Title.Size = UDim2.new(1, 0, 0, 50)
     Title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    Title.Text = title or "UI Library"
+    Title.Text = title or "Mercury UI"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.Font = Enum.Font.SourceSans
+    Title.Font = Enum.Font.SourceSansBold
     Title.TextSize = 24
 
+    DraggableArea.Parent = Frame
+    DraggableArea.Size = UDim2.new(1, 0, 0, 50)
+    DraggableArea.BackgroundTransparency = 1
+
+    -- Sürüklenebilirlik
+    local dragging, dragStart, startPos
+
+    DraggableArea.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = Frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    DraggableArea.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
     local Window = {}
-    function Window:CreateButton(buttonText, callback)
+
+    function Window:CreateButton(text, callback)
         local Button = Instance.new("TextButton")
         Button.Parent = Frame
-        Button.Size = UDim2.new(0.8, 0, 0, 40)
-        Button.Position = UDim2.new(0.1, 0, 0.2, 0)
+        Button.Size = UDim2.new(0.9, 0, 0, 40)
+        Button.Position = UDim2.new(0.05, 0, 0.2, 0)
         Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        Button.Text = buttonText or "Button"
+        Button.Text = text or "Button"
         Button.TextColor3 = Color3.fromRGB(255, 255, 255)
         Button.Font = Enum.Font.SourceSans
         Button.TextSize = 20
@@ -41,7 +74,27 @@ function UILib:CreateWindow(title)
         end)
     end
 
+    function Window:CreateColorPicker(callback)
+        local ColorPicker = Instance.new("TextButton")
+        ColorPicker.Parent = Frame
+        ColorPicker.Size = UDim2.new(0.9, 0, 0, 40)
+        ColorPicker.Position = UDim2.new(0.05, 0, 0.3, 50)
+        ColorPicker.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        ColorPicker.Text = "Change Color"
+        ColorPicker.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ColorPicker.Font = Enum.Font.SourceSans
+        ColorPicker.TextSize = 20
+
+        ColorPicker.MouseButton1Click:Connect(function()
+            local ColorValue = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))
+            Frame.BackgroundColor3 = ColorValue
+            if callback then
+                callback(ColorValue)
+            end
+        end)
+    end
+
     return Window
 end
 
-return UILib
+return MercuryLib
