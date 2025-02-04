@@ -1,3 +1,42 @@
+
+local UserInputService = game:GetService("UserInputService")
+
+function EnableMobileDragging(guiObject)
+    local dragging, dragInput, dragStart, startPos
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        guiObject.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+
+    guiObject.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = guiObject.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    guiObject.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+
 --[[
 
 ██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
@@ -497,9 +536,9 @@ function Library:create(options)
 
 			Event:connect(function()
 				local Input = core.InputBegan:connect(function(Key)
-					if Key.UserInputType == Enum.UserInputType.MouseButton1 then
+					if Key.UserInputType == Enum.UserInputType.Touch then
 						local ObjectPosition = Vector2.new(Mouse.X - core.AbsolutePosition.X, Mouse.Y - core.AbsolutePosition.Y)
-						while RunService.RenderStepped:wait() and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+						while RunService.RenderStepped:wait() and UserInputService:IsMouseButtonPressed(Enum.UserInputType.Touch) do
 
 							if Library.LockDragging then
 								local FrameX, FrameY = math.clamp(Mouse.X - ObjectPosition.X, 0, gui.AbsoluteSize.X - core.AbsoluteSize.X), math.clamp(Mouse.Y - ObjectPosition.Y, 0, gui.AbsoluteSize.Y - core.AbsoluteSize.Y)
@@ -724,7 +763,7 @@ function Library:create(options)
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+			if key.UserInputType == Enum.UserInputType.Touch then
 				down = false
 				homeButton:tween{BackgroundTransparency = ((selectedTab == homeButton) and 0.15) or (hovered and 0.3) or 1}
 			end
@@ -1142,7 +1181,7 @@ function Library:tab(options)
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+			if key.UserInputType == Enum.UserInputType.Touch then
 				down = false
 				tabButton:tween{BackgroundTransparency = ((selectedTab == tabButton) and 0.15) or (hovered and 0.3) or 1}
 			end
@@ -1375,7 +1414,7 @@ function Library:toggle(options)
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+			if key.UserInputType == Enum.UserInputType.Touch then
 				toggleContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
@@ -1544,7 +1583,7 @@ function Library:dropdown(options)
 			end)
 
 			UserInputService.InputEnded:connect(function(key)
-				if key.UserInputType == Enum.UserInputType.MouseButton1 then
+				if key.UserInputType == Enum.UserInputType.Touch then
 					newItem:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Tertiary, 5)) or self:lighten(Library.CurrentTheme.Secondary, 25)}
 				end
 			end)
@@ -1600,7 +1639,7 @@ function Library:dropdown(options)
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+			if key.UserInputType == Enum.UserInputType.Touch then
 				dropdownContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
@@ -1698,7 +1737,7 @@ function Library:dropdown(options)
 				end)
 
 				UserInputService.InputEnded:connect(function(key)
-					if key.UserInputType == Enum.UserInputType.MouseButton1 then
+					if key.UserInputType == Enum.UserInputType.Touch then
 						newItem:tween{BackgroundColor3 = (hovered and Library:lighten(Library.CurrentTheme.Tertiary, 5)) or Library:lighten(Library.CurrentTheme.Secondary, 25)}
 					end
 				end)
@@ -1836,7 +1875,7 @@ function Library:button(options)
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+			if key.UserInputType == Enum.UserInputType.Touch then
 				buttonContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
@@ -1926,7 +1965,7 @@ function Library:color_picker(options)
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+			if key.UserInputType == Enum.UserInputType.Touch then
 				buttonContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
@@ -2041,7 +2080,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton1 then
+							if key.UserInputType == Enum.UserInputType.Touch then
 								button:tween{BackgroundTransparency = (hovered and 0) or 1}
 								if hovered then
 									button:tween{BackgroundColor3 = Library.CurrentTheme.Tertiary}
@@ -2195,7 +2234,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:Connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton1 then
+							if key.UserInputType == Enum.UserInputType.Touch then
 								if down then
 									down = false
 								end
@@ -2230,7 +2269,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:Connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton1 then
+							if key.UserInputType == Enum.UserInputType.Touch then
 								if down then
 									down = false
 								end
@@ -2564,7 +2603,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:Connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton1 then
+							if key.UserInputType == Enum.UserInputType.Touch then
 								if down then
 									down = false
 								end
@@ -2599,7 +2638,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:Connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton1 then
+							if key.UserInputType == Enum.UserInputType.Touch then
 								if down then
 									down = false
 								end
@@ -2629,7 +2668,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton1 then
+							if key.UserInputType == Enum.UserInputType.Touch then
 								pickBtn:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Tertiary)) or Library.CurrentTheme.Tertiary}
 							end
 						end)
@@ -3065,7 +3104,7 @@ function Library:keybind(options)
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+			if key.UserInputType == Enum.UserInputType.Touch then
 				keybindContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
@@ -3234,7 +3273,7 @@ function Library:prompt(options)
 			end)
 
 			UserInputService.InputEnded:connect(function(key)
-				if key.UserInputType == Enum.UserInputType.MouseButton1 then
+				if key.UserInputType == Enum.UserInputType.Touch then
 					button:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Tertiary)) or Library.CurrentTheme.Tertiary}
 				end
 			end)
@@ -3356,7 +3395,7 @@ function Library:slider(options)
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+			if key.UserInputType == Enum.UserInputType.Touch then
 				down = false
 				sliderContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
