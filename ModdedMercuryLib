@@ -1,127 +1,92 @@
-local TokyoLib = {}
-
-TokyoLib.Themes = {
-    Dark = { Background = Color3.fromRGB(30, 30, 30), Text = Color3.fromRGB(255, 255, 255) },
-    Light = { Background = Color3.fromRGB(240, 240, 240), Text = Color3.fromRGB(0, 0, 0) }
+local Tokyo = {}
+Tokyo.Themes = {
+    Dark = {Background = Color3.fromRGB(30, 30, 30), Text = Color3.fromRGB(255, 255, 255)},
+    Light = {Background = Color3.fromRGB(240, 240, 240), Text = Color3.fromRGB(0, 0, 0)},
+    Red = {Background = Color3.fromRGB(150, 0, 0), Text = Color3.fromRGB(255, 255, 255)},
+    Legacy = {Background = Color3.fromRGB(50, 50, 50), Text = Color3.fromRGB(200, 200, 200)},
+    Retro = {Background = Color3.fromRGB(10, 10, 10), Text = Color3.fromRGB(255, 180, 50)}
 }
 
-function TokyoLib:Create(config)
-    local CoreGui = game:GetService("CoreGui")
-    local GUI = Instance.new("ScreenGui", CoreGui)
-    GUI.Name = "TokyoUI"
-
-    local Theme = config.Theme or TokyoLib.Themes.Dark
-
+function Tokyo:Create(settings)
+    local ScreenGui = Instance.new("ScreenGui")
     local MainFrame = Instance.new("Frame")
-    MainFrame.Parent = GUI
-    MainFrame.Size = config.Size or UDim2.new(0, 600, 0, 400)
+    
+    ScreenGui.Parent = game.CoreGui
+    MainFrame.Parent = ScreenGui
+    MainFrame.Size = settings.Size or UDim2.new(0, 600, 0, 400)
     MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-    MainFrame.BackgroundColor3 = Theme.Background
-    MainFrame.BorderSizePixel = 0
+    MainFrame.BackgroundColor3 = Tokyo.Themes[settings.Theme].Background
 
     local Title = Instance.new("TextLabel")
     Title.Parent = MainFrame
-    Title.Text = config.Name or "Tokyo UI"
     Title.Size = UDim2.new(1, 0, 0, 30)
-    Title.BackgroundTransparency = 1
+    Title.BackgroundColor3 = Tokyo.Themes[settings.Theme].Background
+    Title.Text = settings.Name or "Tokyo"
+    Title.TextColor3 = Tokyo.Themes[settings.Theme].Text
     Title.Font = Enum.Font.GothamBold
     Title.TextSize = 18
-    Title.TextColor3 = Theme.Text
 
-    local TabHolder = Instance.new("Frame")
-    TabHolder.Parent = MainFrame
-    TabHolder.Size = UDim2.new(1, 0, 0, 30)
-    TabHolder.Position = UDim2.new(0, 0, 0, 30)
-    TabHolder.BackgroundTransparency = 1
+    local Container = Instance.new("Frame")
+    Container.Parent = MainFrame
+    Container.Size = UDim2.new(1, 0, 1, -30)
+    Container.Position = UDim2.new(0, 0, 0, 30)
+    Container.BackgroundColor3 = Tokyo.Themes[settings.Theme].Background
 
-    local ContentFrame = Instance.new("Frame")
-    ContentFrame.Parent = MainFrame
-    ContentFrame.Size = UDim2.new(1, 0, 1, -60)
-    ContentFrame.Position = UDim2.new(0, 0, 0, 60)
-    ContentFrame.BackgroundTransparency = 1
-
-    local Tabs = {}
-
-    function GUI:Tab(name)
-        local Tab = {}
-        local TabButton = Instance.new("TextButton")
-        TabButton.Parent = TabHolder
-        TabButton.Text = name
-        TabButton.Size = UDim2.new(0, 100, 1, 0)
-        TabButton.BackgroundTransparency = 1
-        TabButton.Font = Enum.Font.Gotham
-        TabButton.TextColor3 = Theme.Text
-
-        local TabContent = Instance.new("Frame")
-        TabContent.Parent = ContentFrame
-        TabContent.Size = UDim2.new(1, 0, 1, 0)
-        TabContent.Visible = false
-        TabContent.BackgroundTransparency = 1
-
-        TabButton.MouseButton1Click:Connect(function()
-            for _, v in pairs(ContentFrame:GetChildren()) do
-                v.Visible = false
-            end
-            TabContent.Visible = true
-        end)
-
-        function Tab:Button(text, callback)
-            local Button = Instance.new("TextButton")
-            Button.Parent = TabContent
-            Button.Text = text
-            Button.Size = UDim2.new(1, -20, 0, 30)
-            Button.Position = UDim2.new(0, 10, 0, #TabContent:GetChildren() * 35)
-            Button.BackgroundColor3 = Theme.Background
-            Button.Font = Enum.Font.Gotham
-            Button.TextColor3 = Theme.Text
-            Button.MouseButton1Click:Connect(callback)
-        end
-
-        function Tab:Toggle(text, default, callback)
-            local Toggle = Instance.new("TextButton")
-            Toggle.Parent = TabContent
-            Toggle.Text = text .. ": " .. (default and "ON" or "OFF")
-            Toggle.Size = UDim2.new(1, -20, 0, 30)
-            Toggle.Position = UDim2.new(0, 10, 0, #TabContent:GetChildren() * 35)
-            Toggle.BackgroundColor3 = Theme.Background
-            Toggle.Font = Enum.Font.Gotham
-            Toggle.TextColor3 = Theme.Text
-
-            local state = default
-            Toggle.MouseButton1Click:Connect(function()
-                state = not state
-                Toggle.Text = text .. ": " .. (state and "ON" or "OFF")
-                callback(state)
-            end)
-        end
-
-        function Tab:Slider(text, min, max, default, callback)
-            local SliderFrame = Instance.new("Frame")
-            SliderFrame.Parent = TabContent
-            SliderFrame.Size = UDim2.new(1, -20, 0, 30)
-            SliderFrame.Position = UDim2.new(0, 10, 0, #TabContent:GetChildren() * 35)
-            SliderFrame.BackgroundTransparency = 1
-
-            local Slider = Instance.new("TextButton")
-            Slider.Parent = SliderFrame
-            Slider.Size = UDim2.new(1, 0, 1, 0)
-            Slider.BackgroundColor3 = Theme.Background
-            Slider.Text = text .. ": " .. default
-            Slider.Font = Enum.Font.Gotham
-            Slider.TextColor3 = Theme.Text
-
-            Slider.MouseButton1Click:Connect(function()
-                local value = math.random(min, max)
-                Slider.Text = text .. ": " .. value
-                callback(value)
-            end)
-        end
-
-        table.insert(Tabs, Tab)
-        return Tab
+    local UI = {}
+    
+    function UI:Button(options)
+        local Button = Instance.new("TextButton")
+        Button.Parent = Container
+        Button.Size = UDim2.new(1, -20, 0, 40)
+        Button.Position = UDim2.new(0, 10, 0, #Container:GetChildren() * 45)
+        Button.BackgroundColor3 = Tokyo.Themes[settings.Theme].Background
+        Button.Text = options.Name
+        Button.TextColor3 = Tokyo.Themes[settings.Theme].Text
+        Button.MouseButton1Click:Connect(function() options.Callback() end)
     end
 
-    return GUI
+    function UI:Toggle(options)
+        local Toggle = Instance.new("TextButton")
+        local State = options.Default or false
+        Toggle.Parent = Container
+        Toggle.Size = UDim2.new(1, -20, 0, 40)
+        Toggle.Position = UDim2.new(0, 10, 0, #Container:GetChildren() * 45)
+        Toggle.BackgroundColor3 = Tokyo.Themes[settings.Theme].Background
+        Toggle.TextColor3 = Tokyo.Themes[settings.Theme].Text
+        Toggle.Text = options.Name .. " [" .. (State and "ON" or "OFF") .. "]"
+
+        Toggle.MouseButton1Click:Connect(function()
+            State = not State
+            Toggle.Text = options.Name .. " [" .. (State and "ON" or "OFF") .. "]"
+            options.Callback(State)
+        end)
+    end
+
+    function UI:Slider(options)
+        local Slider = Instance.new("Frame")
+        local Value = Instance.new("TextLabel")
+        local Button = Instance.new("TextButton")
+
+        Slider.Parent = Container
+        Slider.Size = UDim2.new(1, -20, 0, 40)
+        Slider.Position = UDim2.new(0, 10, 0, #Container:GetChildren() * 45)
+        Slider.BackgroundColor3 = Tokyo.Themes[settings.Theme].Background
+
+        Value.Parent = Slider
+        Value.Size = UDim2.new(0.7, 0, 1, 0)
+        Value.Text = options.Name .. ": " .. options.Default
+        Value.TextColor3 = Tokyo.Themes[settings.Theme].Text
+
+        Button.Parent = Slider
+        Button.Size = UDim2.new(0.3, 0, 1, 0)
+        Button.Position = UDim2.new(0.7, 0, 0, 0)
+        Button.Text = "Adjust"
+        Button.MouseButton1Click:Connect(function()
+            options.Callback(math.random(options.Min, options.Max))
+        end)
+    end
+
+    return UI
 end
 
-return TokyoLib
+return Tokyo
